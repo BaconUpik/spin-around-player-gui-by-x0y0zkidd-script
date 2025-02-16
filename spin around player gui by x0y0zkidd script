@@ -1,0 +1,92 @@
+local plr = game:GetService("Players")
+local me  = plr.LocalPlayer
+local hum = me.Character:WaitForChild("Humanoid")
+local hrp = me.Character:WaitForChild("HumanoidRootPart")
+
+local work = game:GetService("Workspace")
+local run = game:GetService("RunService")
+
+local function update()
+    hum = me.Character:WaitForChild("Humanoid")
+    hrp = me.Character:WaitForChild("HumanoidRootPart")
+end
+
+local spinCon
+
+me.CharacterAdded:Connect(update)
+
+if me.Character then
+    update()
+end
+
+local screen  = Instance.new("ScreenGui")
+screen.Parent = me.PlayerGui
+screen.Name   = "Speed"
+
+local frame    = Instance.new("Frame")
+frame.Parent   = screen
+frame.Size     = UDim2.new(0,250,0,250)
+frame.Position = UDim2.new(0,15,0,380)
+
+frame.Active     = true
+frame.Selectable = true
+frame.Draggable  = true
+
+local btn    = Instance.new("TextButton")
+btn.Parent   = frame
+btn.Size     = UDim2.new(0,25,0,25)
+btn.Position = UDim2.new(0,225,0,0)
+btn.Text     = "X"
+btn.TextSize = 12
+
+local text             = Instance.new("TextBox")
+text.Parent            = frame
+text.Size              = UDim2.new(0,80,0,35)
+text.Position          = UDim2.new(0,90,0,100)
+text.Text              = ""
+text.PlaceholderText   = "Spin"
+text.PlaceholderColor3 = Color3.fromRGB(70,70,70)
+text.TextSize          = 12
+
+local btn2    = Instance.new("TextButton")
+btn2.Parent   = frame
+btn2.Size     = UDim2.new(0,80,0,35)
+btn2.Position = UDim2.new(0,30,0,140)
+btn2.Text     = "Start"
+btn2.TextSize = 12
+
+local btn3    = Instance.new("TextButton")
+btn3.Parent   = frame
+btn3.Size     = UDim2.new(0,80,0,35)
+btn3.Position = UDim2.new(0,150,0,140)
+btn3.Text     = "Stop"
+btn3.TextSize = 12
+
+btn.MouseButton1Click:Connect(function()
+    screen:Destroy()
+end)
+
+local spin = 0
+
+btn2.MouseButton1Click:Connect(function()
+	local args = text.Text:sub(0)
+	
+    for _, spinAroundPlayer in pairs(plr:GetPlayers()) do
+		if spinAroundPlayer.Name:lower():find(args:lower()) or spinAroundPlayer.DisplayName:lower():find(args:lower()) then
+			spinCon = run.RenderStepped:Connect(function()
+				spin = spin + math.rad(4)
+				local lookVector = spinAroundPlayer.Character.HumanoidRootPart.CFrame.LookVector
+				hrp.CFrame = CFrame.lookAt(spinAroundPlayer.Character.HumanoidRootPart.Position + Vector3.new(math.cos(spin) * 4,0,math.sin(spin) * 4), spinAroundPlayer.Character.HumanoidRootPart.Position)
+			end)
+		end
+	end
+end)
+
+btn3.MouseButton1Click:Connect(function()
+    if spinCon then
+		spinCon:Disconnect()
+		spinCon = nil
+	end
+end)
+
+screen.ResetOnSpawn = false
